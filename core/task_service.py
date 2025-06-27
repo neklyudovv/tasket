@@ -1,20 +1,28 @@
-from .models import Task
+from tasket.db.models import Task
 from datetime import datetime
 from typing import List
 from uuid import uuid4
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 
-async def get_user_tasks(user_id: int) -> List:
-    return ['empty']
+async def get_user_tasks(user_id: int, session: AsyncSession) -> List[Task]:
+    result = await session.execute(
+        select(Task).where(Task.user_id == user_id)
+    )
+    return result.scalars().all()
 
 
-async def create_task(title: str, due: str, user_id: int) -> Task:
+async def create_task(title: str, due: datetime, user_id: int, session: AsyncSession) -> Task:
     new_task = Task(
-        id=uuid4(),
+        id=str(uuid4()),
         user_id=user_id,
         title=title,
         due_date=due,
         is_done=False,
         created_at=datetime.utcnow()
     )
+    session.add(new_task)
+    await session.commit()
+    await session.refresh(new_task)
     return new_task
