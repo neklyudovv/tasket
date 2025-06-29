@@ -7,9 +7,7 @@ from sqlalchemy import select
 
 
 async def get_user_tasks(user_id: int, session: AsyncSession) -> List[Task]:
-    result = await session.execute(
-        select(Task).where(Task.user_id == user_id)
-    )
+    result = await session.execute(select(Task).where(Task.user_id == user_id))
     return result.scalars().all()
 
 
@@ -26,3 +24,16 @@ async def create_task(title: str, due: datetime, user_id: int, session: AsyncSes
     await session.commit()
     await session.refresh(new_task)
     return new_task
+
+
+async def done_task(task_id: str, session: AsyncSession) -> Task:
+    task = await session.get(Task, task_id)
+
+    if task is None:
+        raise ValueError
+
+    task.is_done = True
+    await session.commit()
+    await session.refresh(task)
+
+    return task
