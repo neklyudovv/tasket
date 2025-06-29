@@ -1,8 +1,7 @@
-from tasket.core.task_service import get_user_tasks, create_task, done_task
-from fastapi import APIRouter, Depends
+from tasket.core.task_service import get_user_tasks, create_task, done_task, delete_task
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 from datetime import datetime
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from tasket.db.deps import get_db_session
 
@@ -28,9 +27,18 @@ async def new_task(task: TaskCreate, session: AsyncSession = Depends(get_db_sess
     return await create_task(task.title, task.due_to, task.user_id, session)
 
 
-@router.put("/tasks/{task_id}/done", tags=["tasks"])
+@router.patch("/tasks/{task_id}/done", tags=["tasks"])
 async def mark_task_done(task_id: str, session: AsyncSession = Depends(get_db_session)):
     try:
         return await done_task(task_id, session)
     except ValueError:
-        return HTTPException(404, "Task not found")
+        raise HTTPException(404, "Task not found")
+
+
+@router.delete("/tasks/{task_id}", tags=["tasks"])
+async def delete_task_by_id(task_id: str, session: AsyncSession = Depends(get_db_session)):
+    try:
+        await delete_task(task_id, session)
+    except ValueError:
+        raise HTTPException(404, "Task not found")
+    return Response(status_code=204)
