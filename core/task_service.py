@@ -26,10 +26,10 @@ async def create_task(title: str, due: datetime, user_id: int, session: AsyncSes
     return new_task
 
 
-async def done_task(task_id: str, session: AsyncSession) -> Task:
+async def done_task(task_id: str, user_id: int, session: AsyncSession) -> Task:
     task = await session.get(Task, task_id)
 
-    if task is None:
+    if task is None or task.user_id != user_id:
         raise ValueError
 
     task.is_done = True
@@ -39,11 +39,10 @@ async def done_task(task_id: str, session: AsyncSession) -> Task:
     return task
 
 
-async def delete_task(task_id: str, session: AsyncSession) -> None:
+async def delete_task(task_id: str, user_id: int, session: AsyncSession) -> None:
     task = await session.get(Task, task_id)
-
-    if task is None:
+    if task is None or task.user_id != user_id:
         raise ValueError
 
-    session.delete(task)
+    await session.delete(task)
     await session.commit()
