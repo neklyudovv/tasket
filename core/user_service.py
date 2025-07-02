@@ -10,7 +10,8 @@ async def new_user(username: str, password: str, session: AsyncSession) -> User:
     hashed_password = pwd_context.hash(password)
     user = User(username=username, password_hash=hashed_password)
 
-    #check user
+    if await session.execute(select(User).where(User.username == username)) is not None:
+        raise ValueError
 
     session.add(user)
     await session.commit()

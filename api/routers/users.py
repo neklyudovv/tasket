@@ -13,7 +13,11 @@ class UserCreate(BaseModel):
 
 @router.post("/users/register", tags=['users'])
 async def register(user: UserCreate, session: AsyncSession = Depends(get_db_session)):
-    return await new_user(user.username, user.password, session)
+    try:
+        created_user = await new_user(user.username, user.password, session)
+    except ValueError:
+        raise HTTPException(409, "Username not available")
+    return created_user
 
 
 @router.post("/users/login", tags=['users'])
