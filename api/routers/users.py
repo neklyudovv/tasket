@@ -5,13 +5,16 @@ from tasket.db.session import get_db_session
 from tasket.core.user_service import new_user, login_user
 from ..security import create_access_token
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/users",
+    tags=["users"]
+)
 
 class UserCreate(BaseModel):
     username: str
     password: str
 
-@router.post("/users/register", tags=['users'])
+@router.post("/register")
 async def register(user: UserCreate, session: AsyncSession = Depends(get_db_session)):
     try:
         created_user = await new_user(user.username, user.password, session)
@@ -20,7 +23,7 @@ async def register(user: UserCreate, session: AsyncSession = Depends(get_db_sess
     return created_user
 
 
-@router.post("/users/login", tags=['users'])
+@router.post("/login")
 async def login(user: UserCreate, session: AsyncSession = Depends(get_db_session)):
      if await login_user(user.username, user.password, session):
          token = create_access_token({"sub": user.username})
