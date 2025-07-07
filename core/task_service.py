@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 from uuid import uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
+from .exceptions import TaskNotFoundError, PermissionDeniedError
 from sqlalchemy import select
 
 
@@ -29,8 +30,11 @@ async def create_task(title: str, due: datetime, user_id: int, session: AsyncSes
 async def done_task(task_id: str, user_id: int, session: AsyncSession) -> Task:
     task = await session.get(Task, task_id)
 
-    if task is None or task.user_id != user_id:
-        raise ValueError
+    if task is None:
+        raise TaskNotFoundError
+
+    if task.user_id != user_id:
+        raise PermissionDeniedError
 
     task.is_done = True
     await session.commit()
@@ -41,8 +45,12 @@ async def done_task(task_id: str, user_id: int, session: AsyncSession) -> Task:
 
 async def delete_task(task_id: str, user_id: int, session: AsyncSession) -> None:
     task = await session.get(Task, task_id)
-    if task is None or task.user_id != user_id:
-        raise ValueError
+
+    if task is None:
+        raise TaskNotFoundError
+
+    if task.user_id != user_id:
+        raise PermissionDeniedError
 
     await session.delete(task)
     await session.commit()
