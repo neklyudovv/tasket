@@ -5,7 +5,6 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from tasket.db.session import get_db_session
 from tasket.db.models.user import User
-from tasket.core.exceptions import TaskNotFoundError, PermissionDeniedError
 from ..deps import get_current_user
 
 router = APIRouter(
@@ -34,20 +33,9 @@ async def new_task(task: TaskCreate, user: User = Depends(get_current_user), ses
 
 @router.patch("/{task_id}/done")
 async def mark_task_done(task_id: str, user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
-    try:
-        return await done_task(task_id, user.id, session)
-    except TaskNotFoundError as e:
-        raise HTTPException(404, e.message)
-    except PermissionDeniedError as e:
-        raise HTTPException(403, e.message)
+    return await done_task(task_id, user.id, session)
 
 
 @router.delete("/{task_id}")
 async def delete_task_by_id(task_id: str, user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
-    try:
-        await delete_task(task_id, user.id, session)
-    except TaskNotFoundError as e:
-        raise HTTPException(404, e.message)
-    except PermissionDeniedError as e:
-        raise HTTPException(403, e.message)
-    return Response(status_code=204)
+    await delete_task(task_id, user.id, session)
