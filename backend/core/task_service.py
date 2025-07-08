@@ -1,4 +1,4 @@
-from tasket.db.models import Task
+from tasket.backend.db.models import Task
 from datetime import datetime
 from typing import List
 from uuid import uuid4

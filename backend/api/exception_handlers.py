@@ -1,17 +1,17 @@
 from fastapi import Request, FastAPI
 from fastapi.responses import JSONResponse
-from tasket.core.exceptions import (TasketError, TaskNotFoundError, PermissionDeniedError,
-                                    InvalidCredentialsError, UserAlreadyExistsError)
+from tasket.backend.core.exceptions import (TasketError, TaskNotFoundError, PermissionDeniedError,
+                                            InvalidCredentialsError, UserAlreadyExistsError)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(TaskNotFoundError)
     async def task_not_found_handler(request: Request, exc: TaskNotFoundError):
-        return JSONResponse(status_code=404,content={"detail": exc.message})
+        return JSONResponse(status_code=404, content={"detail": exc.message})
 
     @app.exception_handler(PermissionDeniedError)
     async def permission_denied_handler(request: Request, exc: PermissionDeniedError):
-        return JSONResponse(status_code=403,content={"detail": exc.message})
+        return JSONResponse(status_code=403, content={"detail": exc.message})
 
     @app.exception_handler(InvalidCredentialsError)
     async def invalid_credentials_handler(request: Request, exc: InvalidCredentialsError):

@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     db_user: str = Field(env="DB_USER")
     db_pass: str = Field(env="DB_PASS")
 
+    SECRET_KEY: str = Field(env="SECRET_KEY")
+    ALGORITHM: str = Field(env="ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(env="ACCESS_TOKEN_EXPIRE_MINUTES")
+
     class Config:
         env_file = ".env"
 

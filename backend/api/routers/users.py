@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from tasket.db.session import get_db_session
-from tasket.core.user_service import new_user, login_user
+from tasket.backend.db.session import get_db_session
+from tasket.backend.core.user_service import new_user, login_user
 from ..security import create_access_token
 
 router = APIRouter(
