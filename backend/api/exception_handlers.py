@@ -1,6 +1,6 @@
 from fastapi import Request, FastAPI
 from fastapi.responses import JSONResponse
-from tasket.backend.core.exceptions import (TasketError, TaskNotFoundError, PermissionDeniedError,
+from backend.core.exceptions import (TasketError, TaskNotFoundError, PermissionDeniedError,
                                             InvalidCredentialsError, UserAlreadyExistsError)
 
 

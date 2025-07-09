@@ -2,9 +2,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi.security import OAuth2PasswordBearer
-from tasket.backend.db.session import get_db_session
-from tasket.backend.db.models.user import User
-from tasket.backend.api.security import decode_token
+from backend.db.session import get_db_session
+from backend.db.models.user import User
+from backend.api.security import decode_token
 import jwt
 
 

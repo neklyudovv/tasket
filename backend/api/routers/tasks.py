@@ -1,10 +1,10 @@
-from tasket.backend.core.task_service import get_user_tasks, create_task, done_task, delete_task
+from backend.core.task_service import get_user_tasks, create_task, done_task, delete_task
 from fastapi import APIRouter, Depends, HTTPException, Response, Header
 from pydantic import BaseModel
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from tasket.backend.db.session import get_db_session
-from tasket.backend.db.models.user import User
+from backend.db.session import get_db_session
+from backend.db.models.user import User
 from ..deps import get_current_user
 
 router = APIRouter(

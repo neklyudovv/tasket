@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from tasket.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 import jwt
 
 
