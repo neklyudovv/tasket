@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = Field(env="ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(env="ACCESS_TOKEN_EXPIRE_MINUTES")
 
+    TG_BOT_TOKEN: str = Field(env="TG_BOT_TOKEN")
     class Config:
         env_file = ".env"
 
