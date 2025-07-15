@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from .exception_handlers import register_exception_handlers
 from .routers.tasks import router as tasks_router
 from .routers.users import router as users_router
-from backend.db.setup import init_models
+from db.setup import init_models
 import logging
 
 logging.basicConfig(

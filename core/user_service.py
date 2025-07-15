@@ -1,4 +1,4 @@
-from backend.db.models.user import User
+from db.models.user import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from passlib.context import CryptContext

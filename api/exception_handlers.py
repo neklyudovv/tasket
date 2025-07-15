@@ -1,7 +1,7 @@
 from fastapi import Request, FastAPI
 from fastapi.responses import JSONResponse
-from backend.core.exceptions import (TasketError, TaskNotFoundError, PermissionDeniedError,
-                                            InvalidCredentialsError, UserAlreadyExistsError)
+from core.exceptions import (TasketError, TaskNotFoundError, PermissionDeniedError,
+                             InvalidCredentialsError, UserAlreadyExistsError)
 
 
 def register_exception_handlers(app: FastAPI) -> None:

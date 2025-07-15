@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime, timedelta
-from backend.core.task_service import create_task, get_user_tasks, done_task, delete_task
-from backend.core.exceptions import TaskNotFoundError, PermissionDeniedError
+from core.task_service import create_task, get_user_tasks, done_task, delete_task
+from core import TaskNotFoundError, PermissionDeniedError
 
 
 @pytest.mark.asyncio
