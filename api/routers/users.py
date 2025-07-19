@@ -10,18 +10,17 @@ router = APIRouter(
     tags=["users"]
 )
 
-class UserCreate(BaseModel):
+class UserModel(BaseModel):
     username: str
     password: str
 
 @router.post("/register")
-async def register(user: UserCreate, session: AsyncSession = Depends(get_db_session)):
-    created_user = await new_user(user.username, user.password, session)
-    return created_user
+async def register(user: UserModel, session: AsyncSession = Depends(get_db_session)):
+    return await new_user(user.username, user.password, session)
 
 
 @router.post("/login")
-async def login(user: UserCreate, session: AsyncSession = Depends(get_db_session)):
+async def login(user: UserModel, session: AsyncSession = Depends(get_db_session)):
     if await login_user(user.username, user.password, session):
         token = create_access_token({"sub": user.username})
         return {"access_token": token, "token_type": "bearer"}
