@@ -16,5 +16,18 @@ services:
     ports:
       - "${DB_PORT}:${DB_PORT}"
 
+  api:
+    build: .
+    container_name: tasket_api
+    restart: always
+    depends_on:
+      - pg_db
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=pg_db
+    ports:
+      - "8000:8000"
+
 volumes:
   postgres_data:
