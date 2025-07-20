@@ -1,7 +1,7 @@
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
-from db import Base
+from db.models import Base
 
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -20,5 +20,5 @@ async def init_db():
 async def session(init_db) -> AsyncSession:
     async with AsyncSessionLocal() as session:
         yield session
-        session.rollback()
+        await session.rollback()
         

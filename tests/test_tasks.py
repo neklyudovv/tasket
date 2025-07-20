@@ -1,13 +1,13 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from core.task_service import create_task, get_user_tasks, done_task, delete_task
-from core import TaskNotFoundError, PermissionDeniedError
+from core.exceptions import TaskNotFoundError, PermissionDeniedError
 
 
 @pytest.mark.asyncio
 async def test_create_and_get_task(session):
     user_id = 1
-    due = datetime.utcnow() + timedelta(days=1)
+    due = datetime.now(UTC) + timedelta(days=1)
 
     task = await create_task("Test Task", due, user_id, session)
     assert task.title == "Test Task"
@@ -22,7 +22,7 @@ async def test_create_and_get_task(session):
 @pytest.mark.asyncio
 async def test_done_task_success(session):
     user_id = 2
-    due = datetime.utcnow() + timedelta(days=2)
+    due = datetime.now(UTC) + timedelta(days=2)
     task = await create_task("Another Task", due, user_id, session)
 
     updated = await done_task(task.id, user_id, session)
@@ -33,7 +33,7 @@ async def test_done_task_success(session):
 async def test_done_task_permission_denied(session):
     user_id = 3
     wrong_user_id = 999
-    due = datetime.utcnow() + timedelta(days=2)
+    due = datetime.now(UTC) + timedelta(days=2)
     task = await create_task("Private Task", due, user_id, session)
 
     with pytest.raises(PermissionDeniedError):
@@ -49,7 +49,7 @@ async def test_done_task_not_found(session):
 @pytest.mark.asyncio
 async def test_delete_task_success(session):
     user_id = 4
-    due = datetime.utcnow() + timedelta(days=3)
+    due = datetime.now(UTC) + timedelta(days=3)
     task = await create_task("Delete Me", due, user_id, session)
 
     await delete_task(task.id, user_id, session)
@@ -61,7 +61,7 @@ async def test_delete_task_success(session):
 async def test_delete_task_permission_denied(session):
     user_id = 5
     wrong_user_id = 888
-    due = datetime.utcnow() + timedelta(days=3)
+    due = datetime.now(UTC) + timedelta(days=3)
     task = await create_task("Can't Touch This", due, user_id, session)
 
     with pytest.raises(PermissionDeniedError):

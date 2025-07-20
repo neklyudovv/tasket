@@ -1,5 +1,5 @@
 from db.models import Task
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import List
 from uuid import uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,7 @@ async def create_task(title: str, due: datetime, user_id: int, session: AsyncSes
         title=title,
         due_date=due,
         is_done=False,
-        created_at=datetime.utcnow()
+        created_at=datetime.now(UTC)
     )
     session.add(new_task)
     await session.commit()

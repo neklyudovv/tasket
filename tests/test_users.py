@@ -1,6 +1,6 @@
 import pytest
-from core import new_user, login_user
-from core import UserAlreadyExistsError, InvalidCredentialsError
+from core.user_service import new_user, login_user
+from core.exceptions import UserAlreadyExistsError, InvalidCredentialsError
 
 
 @pytest.mark.asyncio
