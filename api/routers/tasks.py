@@ -21,8 +21,6 @@ class TaskCreate(BaseModel):
 @router.get("/")
 async def get_tasks(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
     tasks = await get_user_tasks(user.id, session)
-    if not tasks:
-        raise HTTPException(404, "Tasks not found")
     return tasks
 
 @router.get("/{task_id}")
