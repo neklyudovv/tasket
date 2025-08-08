@@ -15,6 +15,20 @@ async def get_user_tasks(user_id: int, session: AsyncSession) -> List[Task]:
     return result.scalars().all()
 
 
+async def get_single_task(task_id: str, user_id: int, session: AsyncSession):
+    task = await session.get(Task, task_id)
+
+    if task is None:
+        logger.warning(f"Task not found: {task_id=} for {user_id=}")
+        raise TaskNotFoundError
+
+    if task.user_id != user_id:
+        logger.warning(f"Permission denied to modify task: {task_id=} {user_id=}")
+        raise PermissionDeniedError
+
+    logger.info(f"Task viewed: {task_id=} for {user_id=}")
+    return task
+
 async def create_task(title: str, due: datetime, user_id: int, session: AsyncSession) -> Task:
     new_task = Task(
         id=str(uuid4()),

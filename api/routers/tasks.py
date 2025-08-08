@@ -1,4 +1,4 @@
-from core.task_service import get_user_tasks, create_task, done_task, delete_task
+from core.task_service import get_user_tasks, create_task, done_task, delete_task, get_single_task
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from datetime import datetime
@@ -24,6 +24,10 @@ async def get_tasks(user: User = Depends(get_current_user), session: AsyncSessio
     if not tasks:
         raise HTTPException(404, "Tasks not found")
     return tasks
+
+@router.get("/{task_id}")
+async def get_task(task_id: str, user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
+    return await get_single_task(task_id, user.id, session)
 
 
 @router.post("/")
