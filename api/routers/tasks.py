@@ -1,21 +1,16 @@
 from core.task_service import get_user_tasks, create_task, done_task, delete_task, get_single_task
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from datetime import datetime
+from ..pydantic_models import TaskCreate
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.session import get_db_session
 from db.models.user import User
 from ..deps import get_current_user
 
+
 router = APIRouter(
     prefix="/tasks",
     tags=["tasks"]
 )
-
-
-class TaskCreate(BaseModel):
-    title: str
-    due_to: datetime
 
 
 @router.get("/")
