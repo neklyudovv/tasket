@@ -1,3 +1,5 @@
+import os
+import sys
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -5,10 +7,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import os
-from dotenv import load_dotenv
+sys.path.append(os.getcwd())
+
+from config import settings
 from db.models import Base
-from pathlib import Path
 from db.models.user import User
 from db.models.task import Task
 
@@ -21,17 +23,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv()
-
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-
 SQLALCHEMY_DATABASE_URL = (
-    f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    f"postgresql+psycopg2://{settings.db_user}:{settings.db_pass}"
+    f"@{settings.db_host}:{settings.db_port}/{settings.db_name}"
 )
 
 config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
