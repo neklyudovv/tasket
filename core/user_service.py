@@ -3,13 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import bcrypt
 from .exceptions import UserAlreadyExistsError, InvalidCredentialsError
-from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-async def new_user(username: str, password: str, session: AsyncSession) -> Dict[str, Any]:
+async def new_user(username: str, password: str, session: AsyncSession) -> User:
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     user = User(username=username, password_hash=hashed_password)
 
@@ -21,10 +20,10 @@ async def new_user(username: str, password: str, session: AsyncSession) -> Dict[
     await session.commit()
     await session.refresh(user)
     logger.info(f"User created: {username=} ")
-    return {"id": user.id, "username": user.username}
+    return user
 
 
-async def login_user(username: str, password: str, session: AsyncSession) -> Dict[str, Any]:
+async def login_user(username: str, password: str, session: AsyncSession) -> User | None:
     result = await session.execute(select(User).where(User.username == username))
     user = result.scalars().first()
     
@@ -32,4 +31,4 @@ async def login_user(username: str, password: str, session: AsyncSession) -> Dic
         logger.warning(f"Invalid username or password: {username=}")
         raise InvalidCredentialsError
     logger.info(f"Logged in user: {username=}")
-    return {"id": user.id, "username": user.username}
+    return user

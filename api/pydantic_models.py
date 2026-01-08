@@ -20,3 +20,10 @@ class TaskRead(BaseModel):
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserRead(BaseModel):
+    id: int
+    username: str
+    
+    model_config = ConfigDict(from_attributes=True)
