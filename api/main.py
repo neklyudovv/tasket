@@ -5,8 +5,8 @@ from .routers.users import router as users_router
 from db.setup import init_models
 import logging
 
-
 from contextlib import asynccontextmanager
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

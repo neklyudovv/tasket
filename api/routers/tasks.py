@@ -12,7 +12,6 @@ router = APIRouter(
     tags=["tasks"]
 )
 
-
 @router.get("/")
 async def get_tasks(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
     tasks = await get_user_tasks(user.id, session)
