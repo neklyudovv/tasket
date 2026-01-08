@@ -5,17 +5,24 @@ from .routers.users import router as users_router
 from db.setup import init_models
 import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-)
 
-app = FastAPI()
+from contextlib import asynccontextmanager
 
-@app.on_event("startup")
-async def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     await init_models()
+    yield
 
-register_exception_handlers(app)
-app.include_router(tasks_router)
-app.include_router(users_router)
+def create_app() -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
+
+    register_exception_handlers(app)
+    app.include_router(tasks_router)
+    app.include_router(users_router)
+    
+    return app
