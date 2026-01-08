@@ -1,6 +1,6 @@
 from core.task_service import get_user_tasks, create_task, done_task, delete_task, get_single_task
 from fastapi import APIRouter, Depends, HTTPException
-from ..pydantic_models import TaskCreate
+from ..pydantic_models import TaskCreate, TaskRead
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.session import get_db_session
 from db.models.user import User
@@ -12,22 +12,23 @@ router = APIRouter(
     tags=["tasks"]
 )
 
-@router.get("/")
-async def get_tasks(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
-    tasks = await get_user_tasks(user.id, session)
-    return tasks
 
-@router.get("/{task_id}")
+@router.get("/", response_model=list[TaskRead])
+async def get_tasks(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session), limit: int = 50, offset: int = 0):
+    return await get_user_tasks(user.id, session)
+
+
+@router.get("/{task_id}", response_model=TaskRead)
 async def get_task(task_id: str, user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
     return await get_single_task(task_id, user.id, session)
 
 
-@router.post("/")
+@router.post("/", response_model=TaskRead)
 async def new_task(task: TaskCreate, user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
     return await create_task(task.title, task.due_to, user.id, session)
 
 
-@router.patch("/{task_id}/done")
+@router.patch("/{task_id}/done", response_model=TaskRead)
 async def mark_task_done(task_id: str, user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
     return await done_task(task_id, user.id, session)
 
