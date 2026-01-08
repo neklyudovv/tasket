@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from dotenv import load_dotenv
 import os
@@ -10,18 +10,17 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
 class Settings(BaseSettings):
-    db_host: str = Field(env="DB_HOST")
-    db_port: int = Field(env="DB_PORT")
-    db_name: str = Field(env="DB_NAME")
-    db_user: str = Field(env="DB_USER")
-    db_pass: str = Field(env="DB_PASS")
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
 
-    SECRET_KEY: str = Field(env="SECRET_KEY")
-    ALGORITHM: str = Field(env="ALGORITHM")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(env="ACCESS_TOKEN_EXPIRE_MINUTES")
+    db_host: str = Field()
+    db_port: int = Field()
+    db_name: str = Field()
+    db_user: str = Field()
+    db_pass: str = Field()
 
-    class Config:
-        env_file = ".env"
+    SECRET_KEY: str = Field()
+    ALGORITHM: str = Field()
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field()
 
 
 settings = Settings()

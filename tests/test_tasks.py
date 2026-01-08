@@ -4,7 +4,7 @@ from core.task_service import create_task, get_user_tasks, done_task, delete_tas
 from core.exceptions import TaskNotFoundError, PermissionDeniedError
 
 
-@pytest.mark.asyncio
+
 async def test_create_and_get_task(session):
     user_id = 1
     due = datetime.now(UTC) + timedelta(days=1)
@@ -19,7 +19,7 @@ async def test_create_and_get_task(session):
     assert tasks[0].id == task.id
 
 
-@pytest.mark.asyncio
+
 async def test_done_task_success(session):
     user_id = 2
     due = datetime.now(UTC) + timedelta(days=2)
@@ -29,7 +29,7 @@ async def test_done_task_success(session):
     assert updated.is_done is True
 
 
-@pytest.mark.asyncio
+
 async def test_done_task_permission_denied(session):
     user_id = 3
     wrong_user_id = 999
@@ -40,13 +40,13 @@ async def test_done_task_permission_denied(session):
         await done_task(task.id, wrong_user_id, session)
 
 
-@pytest.mark.asyncio
+
 async def test_done_task_not_found(session):
     with pytest.raises(TaskNotFoundError):
         await done_task("non-existent-id", 1, session)
 
 
-@pytest.mark.asyncio
+
 async def test_delete_task_success(session):
     user_id = 4
     due = datetime.now(UTC) + timedelta(days=3)
@@ -57,7 +57,7 @@ async def test_delete_task_success(session):
     assert len(tasks) == 0
 
 
-@pytest.mark.asyncio
+
 async def test_delete_task_permission_denied(session):
     user_id = 5
     wrong_user_id = 888
@@ -68,7 +68,7 @@ async def test_delete_task_permission_denied(session):
         await delete_task(task.id, wrong_user_id, session)
 
 
-@pytest.mark.asyncio
+
 async def test_delete_task_not_found(session):
     with pytest.raises(TaskNotFoundError):
         await delete_task("non-existent-id", 1, session)
