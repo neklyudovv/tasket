@@ -1,6 +1,5 @@
 from db.models import Task
 from datetime import datetime, UTC
-from typing import List
 from uuid import uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
 from .exceptions import TaskNotFoundError, PermissionDeniedError
@@ -10,8 +9,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-async def get_user_tasks(user_id: int, session: AsyncSession) -> List[Task]:
-    result = await session.execute(select(Task).where(Task.user_id == user_id))
+async def get_user_tasks(user_id: int, session: AsyncSession, limit: int = 50, offset: int = 0) -> list[Task]:
+    result = await session.execute(select(Task).where(Task.user_id == user_id).limit(limit).offset(offset))
     return result.scalars().all()
 
 

@@ -65,3 +65,24 @@ async def test_delete_task_permission_denied(session):
 async def test_delete_task_not_found(session):
     with pytest.raises(TaskNotFoundError):
         await delete_task("non-existent-id", 1, session)
+
+
+async def test_pagination(session):
+    user_id = 10
+    due = datetime.now(UTC) + timedelta(days=1)
+    
+    t1 = await create_task("Task 1", due, user_id, session)
+    t2 = await create_task("Task 2", due, user_id, session)
+    t3 = await create_task("Task 3", due, user_id, session)
+    
+    tasks = await get_user_tasks(user_id, session, limit=1)
+    assert len(tasks) == 1
+    assert tasks[0].id == t1.id
+    
+    tasks = await get_user_tasks(user_id, session, limit=1, offset=1)
+    assert len(tasks) == 1
+    assert tasks[0].id == t2.id
+    
+    tasks = await get_user_tasks(user_id, session, limit=1, offset=2)
+    assert len(tasks) == 1
+    assert tasks[0].id == t3.id
