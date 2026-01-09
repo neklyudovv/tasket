@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from ..pydantic_models import UserModel, UserRead
+from ..schemas.users import UserModel, UserRead
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.session import get_db_session
 from core.user_service import new_user, login_user

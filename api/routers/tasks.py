@@ -1,6 +1,6 @@
 from core.task_service import get_user_tasks, create_task, done_task, delete_task, get_single_task
 from fastapi import APIRouter, Depends, HTTPException
-from ..pydantic_models import TaskCreate, TaskRead
+from ..schemas.tasks import TaskCreate, TaskRead
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.session import get_db_session
 from db.models.user import User

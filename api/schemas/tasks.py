@@ -7,23 +7,11 @@ class TaskCreate(BaseModel):
     due_date: datetime | None = None
 
 
-class UserModel(BaseModel):
-    username: str
-    password: str
-
-
 class TaskRead(BaseModel):
     id: str
     title: str
     due_date: datetime | None = None
     is_done: bool
     created_at: datetime
-    
-    model_config = ConfigDict(from_attributes=True)
-
-
-class UserRead(BaseModel):
-    id: int
-    username: str
     
     model_config = ConfigDict(from_attributes=True)
