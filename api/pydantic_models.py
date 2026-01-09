@@ -4,7 +4,7 @@ from datetime import datetime
 
 class TaskCreate(BaseModel):
     title: str
-    due_to: datetime
+    due_date: datetime | None = None
 
 
 class UserModel(BaseModel):
@@ -15,7 +15,7 @@ class UserModel(BaseModel):
 class TaskRead(BaseModel):
     id: str
     title: str
-    due_date: datetime
+    due_date: datetime | None = None
     is_done: bool
     created_at: datetime
     

@@ -33,7 +33,7 @@ async def test_login_and_create_task(client):
     headers = {"Authorization": f"Bearer {token}"}
     task_res = await client.post(
         "/tasks/",
-        json={"title": "Integration Task", "due_to": "2025-12-31T23:59:59Z"},
+        json={"title": "Integration Task", "due_date": "2025-12-31T23:59:59Z"},
         headers=headers
     )
     assert task_res.status_code == 200

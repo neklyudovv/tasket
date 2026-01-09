@@ -25,7 +25,7 @@ async def get_task(task_id: str, user: User = Depends(get_current_user), session
 
 @router.post("/", response_model=TaskRead)
 async def new_task(task: TaskCreate, user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
-    return await create_task(task.title, task.due_to, user.id, session)
+    return await create_task(task.title, user.id, session, task.due_date)
 
 
 @router.patch("/{task_id}/done", response_model=TaskRead)

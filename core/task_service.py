@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 async def get_user_tasks(user_id: int, session: AsyncSession, limit: int = 50, offset: int = 0) -> list[Task]:
-    result = await session.execute(select(Task).where(Task.user_id == user_id).limit(limit).offset(offset))
+    result = await session.execute(select(Task).where(Task.user_id == user_id).order_by(Task.created_at.desc()).limit(limit).offset(offset))
     return result.scalars().all()
 
 
@@ -28,14 +28,14 @@ async def get_single_task(task_id: str, user_id: int, session: AsyncSession):
     logger.info(f"Task viewed: {task_id=} for {user_id=}")
     return task
 
-async def create_task(title: str, due: datetime, user_id: int, session: AsyncSession) -> Task:
+async def create_task(title: str, user_id: int, session: AsyncSession, due_date: datetime | None = None) -> Task:
     new_task = Task(
         id=str(uuid4()),
         user_id=user_id,
         title=title,
-        due_date=due,
+        due_date=due_date.replace(tzinfo=None) if due_date else None,
         is_done=False,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC).replace(tzinfo=None)
     )
     session.add(new_task)
     await session.commit()
