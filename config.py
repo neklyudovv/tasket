@@ -14,5 +14,9 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
+    cors_origins: list[str] = []
+    cors_methods: list[str] = []
+    cors_headers: list[str] = []
+
 
 settings = Settings()

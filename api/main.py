@@ -1,12 +1,18 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+
 from .exception_handlers import register_exception_handlers
 from .routers.tasks import router as tasks_router
 from .routers.users import router as users_router
 from db.setup import init_models
-import logging
-
-from contextlib import asynccontextmanager
-
+from .limiter import limiter
+from config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,6 +21,10 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
+    
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(SlowAPIMiddleware)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -22,6 +32,15 @@ def create_app() -> FastAPI:
     )
 
     register_exception_handlers(app)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=settings.cors_methods,
+        allow_headers=settings.cors_headers,
+    )
+
     app.include_router(tasks_router)
     app.include_router(users_router)
     
