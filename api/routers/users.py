@@ -1,34 +1,32 @@
 from fastapi import APIRouter, Depends, Request
 from ..limiter import limiter
-from ..schemas.users import UserModel, UserRead
-from sqlalchemy.ext.asyncio import AsyncSession
-from db.session import get_db_session
-from core.user_service import new_user, login_user
+from schemas.user import UserCreate, User
+from core.user_service import UserService
+from ..deps import get_user_service
 from ..security import create_access_token
-
 
 router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
 
-@router.post("/register", response_model=UserRead)
+@router.post("/register", response_model=User)
 @limiter.limit("10/minute")
 async def register(
     request: Request,
-    user: UserModel,
-    session: AsyncSession = Depends(get_db_session)
+    user: UserCreate,
+    service: UserService = Depends(get_user_service)
 ):
-    return await new_user(user.username, user.password, session)
+    return await service.new_user(user.username, user.password)
 
 
 @router.post("/login")
 @limiter.limit("10/minute")
 async def login(
     request: Request,
-    user: UserModel,
-    session: AsyncSession = Depends(get_db_session)
+    user: UserCreate,
+    service: UserService = Depends(get_user_service)
 ):
-    if await login_user(user.username, user.password, session):
+    if await service.login_user(user.username, user.password):
         token = create_access_token({"sub": user.username})
         return {"access_token": token, "token_type": "bearer"}
