@@ -9,7 +9,7 @@ from alembic import context
 
 sys.path.append(os.getcwd())
 
-from config import settings
+from core.config import settings
 from db.models import Base
 from db.models.user import User
 from db.models.task import Task

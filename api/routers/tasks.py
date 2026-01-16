@@ -1,4 +1,4 @@
-from core.task_service import TaskService
+from services.task_service import TaskService
 from fastapi import APIRouter, Depends, HTTPException, Request
 from ..limiter import limiter
 from schemas.task import TaskCreate, Task

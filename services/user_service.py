@@ -3,7 +3,7 @@ from schemas.user import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import bcrypt
-from .exceptions import UserAlreadyExistsError, InvalidCredentialsError
+from core.exceptions import UserAlreadyExistsError, InvalidCredentialsError
 import logging
 
 logger = logging.getLogger(__name__)

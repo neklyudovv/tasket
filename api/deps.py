@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer
 from db.session import get_db_session
 from schemas.user import User
-from core.user_service import UserService
-from core.task_service import TaskService
+from services.user_service import UserService
+from services.task_service import TaskService
 from api.security import decode_token
 import jwt
 

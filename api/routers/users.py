@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from ..limiter import limiter
 from schemas.user import UserCreate, User
-from core.user_service import UserService
+from services.user_service import UserService
 from ..deps import get_user_service
 from ..security import create_access_token
 

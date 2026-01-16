@@ -28,7 +28,7 @@ services:
       - DB_HOST=pg_db
     ports:
       - "8000:8000"
-    command: bash -c "alembic upgrade head && uvicorn api.main:create_app --factory --host 0.0.0.0 --port 8000"
+    command: bash -c "alembic upgrade head && uvicorn main:create_app --factory --host 0.0.0.0 --port 8000"
 
 volumes:
   postgres_data:

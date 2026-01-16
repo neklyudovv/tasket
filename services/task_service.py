@@ -3,7 +3,7 @@ from schemas.task import Task
 from datetime import datetime, UTC
 from uuid import uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
-from .exceptions import TaskNotFoundError, PermissionDeniedError
+from core.exceptions import TaskNotFoundError, PermissionDeniedError
 from sqlalchemy import select
 import logging
 
@@ -20,7 +20,7 @@ class TaskService:
         tasks_orm = result.scalars().all()
         return [Task.model_validate(t) for t in tasks_orm]
 
-    async def get_single_task(self, task_id: str, user_id: int) -> Task:
+    async def _get_task_and_check_permissions(self, task_id: str, user_id: int) -> TaskORM:
         task = await self.session.get(TaskORM, task_id)
 
         if task is None:
@@ -30,6 +30,11 @@ class TaskService:
         if task.user_id != user_id:
             logger.warning(f"Permission denied to modify task: {task_id=} {user_id=}")
             raise PermissionDeniedError
+
+        return task
+
+    async def get_single_task(self, task_id: str, user_id: int) -> Task:
+        task = await self._get_task_and_check_permissions(task_id, user_id)
 
         logger.info(f"Task viewed: {task_id=} for {user_id=}")
         return Task.model_validate(task)
@@ -50,15 +55,7 @@ class TaskService:
         return Task.model_validate(new_task)
 
     async def done_task(self, task_id: str, user_id: int) -> Task:
-        task = await self.session.get(TaskORM, task_id)
-
-        if task is None:
-            logger.warning(f"Task not found: {task_id=} for {user_id=}")
-            raise TaskNotFoundError
-
-        if task.user_id != user_id:
-            logger.warning(f"Permission denied to modify task: {task_id=} {user_id=}")
-            raise PermissionDeniedError
+        task = await self._get_task_and_check_permissions(task_id, user_id)
 
         task.is_done = True
         await self.session.commit()
@@ -67,15 +64,7 @@ class TaskService:
         return Task.model_validate(task)
 
     async def delete_task(self, task_id: str, user_id: int) -> None:
-        task = await self.session.get(TaskORM, task_id)
-
-        if task is None:
-            logger.warning(f"Task not found: {task_id=} for {user_id=}")
-            raise TaskNotFoundError
-
-        if task.user_id != user_id:
-            logger.warning(f"Permission denied to delete task: {task_id=} {user_id=}")
-            raise PermissionDeniedError
+        task = await self._get_task_and_check_permissions(task_id, user_id)
 
         await self.session.delete(task)
         await self.session.commit()

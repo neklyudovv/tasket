@@ -7,12 +7,12 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from .exception_handlers import register_exception_handlers
-from .routers.tasks import router as tasks_router
-from .routers.users import router as users_router
+from api.exception_handlers import register_exception_handlers
+from api.routers.tasks import router as tasks_router
+from api.routers.users import router as users_router
 from db.setup import init_models
-from .limiter import limiter
-from config import settings
+from api.limiter import limiter
+from core.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
