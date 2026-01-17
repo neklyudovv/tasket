@@ -8,8 +8,7 @@ async def test_root_not_found(client):
 
 async def test_create_user(client):
     response = await client.post(
-        "/users/register",
-        json={"username": "apiuser", "password": "password123"}
+        "/users/register", json={"username": "apiuser", "password": "password123"}
     )
     assert response.status_code == 200
     data = response.json()
@@ -19,27 +18,25 @@ async def test_create_user(client):
 
 async def test_login_and_create_task(client):
     await client.post(
-        "/users/register", 
-        json={"username": "taskuser", "password": "taskpass"}
+        "/users/register", json={"username": "taskuser", "password": "taskpass"}
     )
-    
+
     login_res = await client.post(
-        "/users/login",
-        json={"username": "taskuser", "password": "taskpass"}
+        "/users/login", json={"username": "taskuser", "password": "taskpass"}
     )
     assert login_res.status_code == 200
     token = login_res.json()["access_token"]
-    
+
     headers = {"Authorization": f"Bearer {token}"}
     task_res = await client.post(
         "/tasks/",
         json={"title": "Integration Task", "due_date": "2025-12-31T23:59:59Z"},
-        headers=headers
+        headers=headers,
     )
     assert task_res.status_code == 200
     task_data = task_res.json()
     assert task_data["title"] == "Integration Task"
-    
+
     list_res = await client.get("/tasks/", headers=headers)
     assert list_res.status_code == 200
     tasks = list_res.json()

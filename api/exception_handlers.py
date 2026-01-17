@@ -1,7 +1,13 @@
-from fastapi import Request, FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from core.exceptions import (TasketError, TaskNotFoundError, PermissionDeniedError,
-                             InvalidCredentialsError, UserAlreadyExistsError)
+
+from core.exceptions import (
+    InvalidCredentialsError,
+    PermissionDeniedError,
+    TasketError,
+    TaskNotFoundError,
+    UserAlreadyExistsError,
+)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -14,7 +20,9 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(status_code=403, content={"detail": exc.message})
 
     @app.exception_handler(InvalidCredentialsError)
-    async def invalid_credentials_handler(request: Request, exc: InvalidCredentialsError):
+    async def invalid_credentials_handler(
+        request: Request, exc: InvalidCredentialsError
+    ):
         return JSONResponse(status_code=401, content={"detail": exc.message})
 
     @app.exception_handler(UserAlreadyExistsError)

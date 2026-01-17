@@ -8,27 +8,29 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from api.exception_handlers import register_exception_handlers
+from api.limiter import limiter
 from api.routers.tasks import router as tasks_router
 from api.routers.users import router as users_router
-from db.setup import init_models
-from api.limiter import limiter
 from core.config import settings
+from db.setup import init_models
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_models()
     yield
 
+
 def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
-    
+
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
     app.add_middleware(SlowAPIMiddleware)
 
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     )
 
     register_exception_handlers(app)
@@ -43,5 +45,5 @@ def create_app() -> FastAPI:
 
     app.include_router(tasks_router)
     app.include_router(users_router)
-    
+
     return app

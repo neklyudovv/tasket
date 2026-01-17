@@ -1,7 +1,9 @@
-from . import Base
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
 import uuid
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+
+from . import Base
 
 
 class Task(Base):

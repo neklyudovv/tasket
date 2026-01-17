@@ -1,21 +1,21 @@
 class TasketError(Exception):
-    message = 'error occurred'
+    message = "error occurred"
 
     def __str__(self):
         return self.message
 
 
 class UserAlreadyExistsError(TasketError):
-    message = 'user already exists'
+    message = "user already exists"
 
 
 class InvalidCredentialsError(TasketError):
-    message = 'invalid credentials'
+    message = "invalid credentials"
 
 
 class TaskNotFoundError(TasketError):
-    message = 'task not found'
+    message = "task not found"
 
 
 class PermissionDeniedError(TasketError):
-    message = 'permission denied'
+    message = "permission denied"

@@ -1,7 +1,8 @@
+from datetime import UTC, datetime, timedelta
 import pytest
-from datetime import datetime, timedelta, UTC
+
+from core.exceptions import PermissionDeniedError, TaskNotFoundError
 from services.task_service import TaskService
-from core.exceptions import TaskNotFoundError, PermissionDeniedError
 
 
 async def test_create_and_get_task(session):
@@ -78,19 +79,19 @@ async def test_pagination(session):
     service = TaskService(session)
     user_id = 10
     due = datetime.now(UTC) + timedelta(days=1)
-    
+
     t1 = await service.create_task("Task 1", user_id, due)
     t2 = await service.create_task("Task 2", user_id, due)
     t3 = await service.create_task("Task 3", user_id, due)
-    
+
     tasks = await service.get_user_tasks(user_id, limit=1)
     assert len(tasks) == 1
     assert tasks[0].id == t3.id
-    
+
     tasks = await service.get_user_tasks(user_id, limit=1, offset=1)
     assert len(tasks) == 1
     assert tasks[0].id == t2.id
-    
+
     tasks = await service.get_user_tasks(user_id, limit=1, offset=2)
     assert len(tasks) == 1
     assert tasks[0].id == t1.id

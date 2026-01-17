@@ -1,14 +1,14 @@
-from services.task_service import TaskService
 from fastapi import APIRouter, Depends, HTTPException, Request
-from ..limiter import limiter
-from schemas.task import TaskCreate, Task
-from schemas.user import User
-from ..deps import get_current_user, get_task_service
 
-router = APIRouter(
-    prefix="/tasks",
-    tags=["tasks"]
-)
+from schemas.task import Task, TaskCreate
+from schemas.user import User
+from services.task_service import TaskService
+
+from ..deps import get_current_user, get_task_service
+from ..limiter import limiter
+
+router = APIRouter(prefix="/tasks", tags=["tasks"])
+
 
 @router.get("/", response_model=list[Task])
 @limiter.limit("60/minute")
@@ -17,7 +17,7 @@ async def get_tasks(
     user: User = Depends(get_current_user),
     service: TaskService = Depends(get_task_service),
     limit: int = 50,
-    offset: int = 0
+    offset: int = 0,
 ):
     return await service.get_user_tasks(user.id, limit, offset)
 
@@ -26,7 +26,7 @@ async def get_tasks(
 async def get_task(
     task_id: str,
     user: User = Depends(get_current_user),
-    service: TaskService = Depends(get_task_service)
+    service: TaskService = Depends(get_task_service),
 ):
     return await service.get_single_task(task_id, user.id)
 
@@ -37,7 +37,7 @@ async def new_task(
     request: Request,
     task: TaskCreate,
     user: User = Depends(get_current_user),
-    service: TaskService = Depends(get_task_service)
+    service: TaskService = Depends(get_task_service),
 ):
     return await service.create_task(task.title, user.id, task.due_date)
 
@@ -46,7 +46,7 @@ async def new_task(
 async def mark_task_done(
     task_id: str,
     user: User = Depends(get_current_user),
-    service: TaskService = Depends(get_task_service)
+    service: TaskService = Depends(get_task_service),
 ):
     return await service.done_task(task_id, user.id)
 
@@ -55,6 +55,6 @@ async def mark_task_done(
 async def delete_task_by_id(
     task_id: str,
     user: User = Depends(get_current_user),
-    service: TaskService = Depends(get_task_service)
+    service: TaskService = Depends(get_task_service),
 ):
     await service.delete_task(task_id, user.id)

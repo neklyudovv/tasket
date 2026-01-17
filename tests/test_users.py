@@ -1,6 +1,7 @@
 import pytest
+
+from core.exceptions import InvalidCredentialsError, UserAlreadyExistsError
 from services.user_service import UserService
-from core.exceptions import UserAlreadyExistsError, InvalidCredentialsError
 
 
 async def test_create_user_success(session):

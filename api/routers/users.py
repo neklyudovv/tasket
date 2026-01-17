@@ -1,21 +1,19 @@
 from fastapi import APIRouter, Depends, Request
-from ..limiter import limiter
-from schemas.user import UserCreate, User
+
+from schemas.user import User, UserCreate
 from services.user_service import UserService
+
 from ..deps import get_user_service
+from ..limiter import limiter
 from ..security import create_access_token
 
-router = APIRouter(
-    prefix="/users",
-    tags=["users"]
-)
+router = APIRouter(prefix="/users", tags=["users"])
+
 
 @router.post("/register", response_model=User)
 @limiter.limit("10/minute")
 async def register(
-    request: Request,
-    user: UserCreate,
-    service: UserService = Depends(get_user_service)
+    request: Request, user: UserCreate, service: UserService = Depends(get_user_service)
 ):
     return await service.new_user(user.username, user.password)
 
@@ -23,9 +21,7 @@ async def register(
 @router.post("/login")
 @limiter.limit("10/minute")
 async def login(
-    request: Request,
-    user: UserCreate,
-    service: UserService = Depends(get_user_service)
+    request: Request, user: UserCreate, service: UserService = Depends(get_user_service)
 ):
     if await service.login_user(user.username, user.password):
         token = create_access_token({"sub": user.username})

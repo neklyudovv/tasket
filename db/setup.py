@@ -1,7 +1,7 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
 from core.config import settings
 from .models import Base
-
 
 DATABASE_URL = (
     f"postgresql+asyncpg://{settings.db_user}:{settings.db_pass}"
@@ -14,6 +14,7 @@ async_session_factory = async_sessionmaker(
     bind=engine,
     expire_on_commit=False,
 )
+
 
 async def init_models():
     async with engine.begin() as conn:
