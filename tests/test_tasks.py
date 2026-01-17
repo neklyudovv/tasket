@@ -95,3 +95,23 @@ async def test_pagination(session):
     tasks = await service.get_user_tasks(user_id, limit=1, offset=2)
     assert len(tasks) == 1
     assert tasks[0].id == t1.id
+
+
+async def test_create_task_with_description(session):
+    service = TaskService(session)
+    user_id = 99
+
+    task = await service.create_task(
+        title="Desc Task",
+        user_id=user_id,
+        description="This is a test description"
+    )
+    assert task.description == "This is a test description"
+    assert task.title == "Desc Task"
+
+    task_empty = await service.create_task(
+        title="No Desc Task",
+        user_id=user_id,
+    )
+    assert task_empty.title == "No Desc Task"
+    assert task_empty.description is None

@@ -39,7 +39,9 @@ async def new_task(
     user: User = Depends(get_current_user),
     service: TaskService = Depends(get_task_service),
 ):
-    return await service.create_task(task.title, user.id, task.due_date)
+    return await service.create_task(
+        task.title, user.id, task.due_date, task.description
+    )
 
 
 @router.patch("/{task_id}/done", response_model=Task)

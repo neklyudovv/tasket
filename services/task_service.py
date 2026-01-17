@@ -51,12 +51,17 @@ class TaskService:
         return Task.model_validate(task)
 
     async def create_task(
-        self, title: str, user_id: int, due_date: datetime | None = None
+        self,
+        title: str,
+        user_id: int,
+        due_date: datetime | None = None,
+        description: str | None = None,
     ) -> Task:
         new_task = TaskORM(
             id=str(uuid4()),
             user_id=user_id,
             title=title,
+            description=description,
             due_date=due_date.replace(tzinfo=None) if due_date else None,
             is_done=False,
             created_at=datetime.now(UTC).replace(tzinfo=None),
