@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions import PermissionDeniedError, TaskNotFoundError
 from db.models import Task as TaskORM
-from schemas.task import Task
+from schemas.task import Task, TaskUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -72,13 +72,19 @@ class TaskService:
         logger.info(f"Task created: {new_task.id=} {user_id=}")
         return Task.model_validate(new_task)
 
-    async def done_task(self, task_id: str, user_id: int) -> Task:
+    async def update_task(
+        self, task_id: str, user_id: int, update_data: TaskUpdate
+    ) -> Task:
         task = await self._get_task_and_check_permissions(task_id, user_id)
 
-        task.is_done = True
+        update_dict = update_data.model_dump(exclude_unset=True)
+
+        for key, value in update_dict.items():
+            setattr(task, key, value)
+
         await self.session.commit()
         await self.session.refresh(task)
-        logger.info(f"Task marked as done: {task_id=} {user_id=}")
+        logger.info(f"Task updated: {task_id=} {user_id=} {update_dict.keys()}")
         return Task.model_validate(task)
 
     async def delete_task(self, task_id: str, user_id: int) -> None:

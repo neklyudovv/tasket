@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from schemas.task import Task, TaskCreate
+from schemas.task import Task, TaskCreate, TaskUpdate
 from schemas.user import User
 from services.task_service import TaskService
 
@@ -44,13 +44,14 @@ async def new_task(
     )
 
 
-@router.patch("/{task_id}/done", response_model=Task)
-async def mark_task_done(
+@router.patch("/{task_id}", response_model=Task)
+async def update_task(
     task_id: str,
+    update_data: TaskUpdate,
     user: User = Depends(get_current_user),
     service: TaskService = Depends(get_task_service),
 ):
-    return await service.done_task(task_id, user.id)
+    return await service.update_task(task_id, user.id, update_data)
 
 
 @router.delete("/{task_id}")
