@@ -6,13 +6,25 @@ Tasket is a simple FastAPI task tracker, that allows user to log in and manage h
 
 ## Table of Contents
 
+* [Technologies](#technologies)
 * [Solution Overview](#solution-overview)
 * [Architecture Highlights](#architecture-highlights)
 * [Installation and Launch](#installation-and-launch)
-* [Technologies](#technologies)
 * [TODO](#todo)
 
 ---
+
+## Technologies
+
+* **FastAPI** - asynchronous Python framework
+* **Docker** - project deployment
+* **PostgreSQL** - database
+* **SQLAlchemy** (async) - ORM
+* **Alembic** - database migrations
+* **Pydantic v2** - data validation and settings management
+* **SlowAPI** - rate limiting
+* **JWT** - authentication and security
+* **Pytest** - integration and unit testing
 
 ## Solution Overview
 
@@ -30,33 +42,59 @@ Tasket offers a minimalist way to manage tasks:
 
 The project is built with a focus on clean architecture and separation of concerns between layers. This ensures modularity, maintainability, and reuse of logic.
 
-### 1. Business Logic (`core/`)
+### 1. Business Logic (`services/`)
 
-All domain logic (handling tasks and users) resides in services within the core/ layer.
-This layer is fully isolated from the web and database making it easy to test and reuse when scaling.
+All business logic (handling tasks and users) resides in **services**.
 
-### 2. Data Layer (`db/`)
+### 2. API Interface (`api/`)
+
+Built on **FastAPI**. This layer serves as an adapter between the outside world and business logic:
+
+* Endpoints (routers)
+* Dependencies and authorization (JWT)
+* Rate limiting (SlowAPI)
+* Error handling
+
+### 3. Configuration (`core/`)
+
+Contains application configuration (environment variables) and core exceptions.
+
+### 4. Data Models (`schemas/`)
+
+Pydantic models / schemas used for validation and serialization.
+
+### 5. Data Layer (`db/`)
 
 Handles interaction with the postgres database using async SQLAlchemy.
 It defines models, sessions, and schema initialization. DB logic is strictly separated from other code.
 
-### 3. API Interface (`api/`)
+### 6. Database Migrations (`alembic/`)
 
-Built on FastAPI. This layer serves as an adapter between the outside world and business logic:
+Database schema versions are managed using **Alembic**. This ensures that all changes to the database structure are tracked and applied potentially without downtime.
 
-* Endpoints (routes)
-* Dependencies and authorization (JWT)
-* Data serialization/deserialization
-* Error handling
+### 7. Docker Environment
 
-### 4. Docker Environment
-
-The project is run using docker-compose, which includes the following services:
+The project uses **docker-compose** to run the following services:
 
 * FastAPI application
 * PostgreSQL database
 
 Containers are isolated and communicate over a Docker network.
+
+---
+
+## API Endpoints
+
+### Authentication
+* `POST /users/register` - Register a new user
+* `POST /users/login` - Login and get access token
+
+### Tasks
+* `GET /tasks/` - Get list of tasks
+* `POST /tasks/` - Create a new task
+* `GET /tasks/{task_id}` - Get a specific task
+* `PATCH /tasks/{task_id}` - Update a task
+* `DELETE /tasks/{task_id}` - Delete a task
 
 ---
 
@@ -68,31 +106,23 @@ Containers are isolated and communicate over a Docker network.
    cd tasket
    ```
 
-2. Install requirements
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Set up the .env file based on .env.example
+2. Set up the .env file based on .env.example
 
-4. Run the project:
+3. Run the project:
    ```bash
    docker-compose up --build
    ```
    
-5. The API will be available at:
+4. API will be available at:
    ```
-   http://127.0.0.1:8000/
-   ```
----
+   http://localhost:8000/
 
-## Technologies
-
-* **FastAPI** - asynchronous Python framework
-* **PostgreSQL** - database
-* **SQLAlchemy** (async) - ORM
-* **Docker** - project deployment
-* **JWT** - authentication and security
-* **Pytest** - testing
+> **Optional**
+>
+> Run tests:
+> ```bash
+> pytest
+> ```
 
 ---
 
