@@ -2,8 +2,6 @@ services:
   pg_db:
     image: postgres:latest
     restart: unless-stopped
-    container_name: tasket_db
-    hostname: ${DB_HOST}
     env_file:
       - .env
     environment:
@@ -18,7 +16,6 @@ services:
 
   api:
     build: .
-    container_name: tasket_api
     restart: always
     depends_on:
       - pg_db
@@ -28,7 +25,6 @@ services:
       - DB_HOST=pg_db
     ports:
       - "8000:8000"
-    command: bash -c "alembic upgrade head && uvicorn main:create_app --factory --host 0.0.0.0 --port 8000"
 
 volumes:
   postgres_data:
