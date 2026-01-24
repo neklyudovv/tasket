@@ -18,6 +18,7 @@ Tasket is a simple FastAPI task tracker, that allows user to log in and manage h
 
 * **FastAPI** - asynchronous Python framework
 * **Docker** - project deployment
+* **Github Actions** - CI/CD
 * **PostgreSQL** - database
 * **SQLAlchemy** (async) - ORM
 * **Alembic** - database migrations
@@ -123,6 +124,10 @@ Containers are isolated and communicate over a Docker network.
 > ```bash
 > pytest
 > ```
+>
+> **CI/CD**:
+> The project uses **Github Actions** to run tests automatically on every push and pull request to `main`.
+> Check `.github/workflows/ci.yml` for details.
 
 ---
 
