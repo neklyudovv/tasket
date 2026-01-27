@@ -1,7 +1,8 @@
 import logging
 
 import bcrypt
-from sqlalchemy import select
+from sqlalchemy import insert, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions import InvalidCredentialsError, UserAlreadyExistsError
@@ -19,19 +20,21 @@ class UserService:
         hashed_password = bcrypt.hashpw(
             password.encode("utf-8"), bcrypt.gensalt()
         ).decode("utf-8")
-        user_orm = UserORM(username=username, password_hash=hashed_password)
 
-        result = await self.session.execute(
-            select(UserORM).where(UserORM.username == username)
-        )
-        if result.scalars().first():
+        try:
+            result = await self.session.execute(
+                insert(UserORM)
+                .values(username=username, password_hash=hashed_password)
+                .returning(UserORM)
+            )
+            user = result.scalars().first()
+            await self.session.commit()
+        except IntegrityError:
+            await self.session.rollback()
             raise UserAlreadyExistsError
 
-        self.session.add(user_orm)
-        await self.session.commit()
-        await self.session.refresh(user_orm)
         logger.info(f"User created: {username=} ")
-        return User.model_validate(user_orm)
+        return User.model_validate(user)
 
     async def get_user_by_username(self, username: str) -> User | None:
         result = await self.session.execute(

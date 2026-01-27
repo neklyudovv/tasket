@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 import pytest
 
-from core.exceptions import PermissionDeniedError, TaskNotFoundError
+from core.exceptions import TaskNotFoundError
 from schemas.task import TaskUpdate
 from services.task_service import TaskService
 
@@ -38,7 +38,7 @@ async def test_done_task_permission_denied(session):
     due = datetime.now(UTC) + timedelta(days=2)
     task = await service.create_task("Private Task", user_id, due)
 
-    with pytest.raises(PermissionDeniedError):
+    with pytest.raises(TaskNotFoundError):
         await service.update_task(task.id, wrong_user_id, TaskUpdate(is_done=True))
 
 
@@ -66,7 +66,7 @@ async def test_delete_task_permission_denied(session):
     due = datetime.now(UTC) + timedelta(days=3)
     task = await service.create_task("Can't Touch This", user_id, due)
 
-    with pytest.raises(PermissionDeniedError):
+    with pytest.raises(TaskNotFoundError):
         await service.delete_task(task.id, wrong_user_id)
 
 
