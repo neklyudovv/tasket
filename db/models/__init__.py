@@ -7,3 +7,4 @@ class Base(DeclarativeBase):
 
 from .task import Task
 from .user import User
+from .refresh_token import RefreshToken

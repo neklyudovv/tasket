@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
+    JWT_ISSUER: str
+    JWT_AUDIENCE: str
 
     cors_origins: list[str] = []
     cors_methods: list[str] = []

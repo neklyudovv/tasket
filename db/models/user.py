@@ -13,3 +13,4 @@ class User(Base):
     password_hash = Column(String, nullable=False)
 
     tasks = relationship("Task", back_populates="owner")
+    refresh_tokens = relationship("RefreshToken", back_populates="user")

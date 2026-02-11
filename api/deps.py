@@ -4,11 +4,12 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.security import decode_token
+from api.security import decode_token, verify_token_payload
 from db.session import get_db_session
 from schemas.user import User
 from services.task_service import TaskService
 from services.user_service import UserService
+from services.token_service import TokenService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
@@ -27,13 +28,18 @@ def get_task_service(session: AsyncSession = Depends(get_db_session)) -> TaskSer
     return TaskService(session)
 
 
+def get_token_service(session: AsyncSession = Depends(get_db_session)) -> TokenService:
+    return TokenService(session)
+
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     service: UserService = Depends(get_user_service),
 ) -> User:
     try:
         payload = decode_token(token)
-        username: str = payload.get("sub")
+        validated_payload = verify_token_payload(payload, "access")
+        username: str = validated_payload.get("sub")
         if username is None:
             raise credentials_exception
     except jwt.PyJWTError:
