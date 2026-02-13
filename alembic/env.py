@@ -13,6 +13,7 @@ from core.config import settings
 from db.models import Base
 from db.models.user import User
 from db.models.task import Task
+from db.models.refresh_token import RefreshToken
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
