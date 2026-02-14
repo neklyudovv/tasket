@@ -14,7 +14,7 @@ async def test_login_returns_tokens(client, session):
     assert res.status_code == 200
 
     res = await client.post(
-        "/users/login", json={"username": "authtest", "password": "password"}
+        "/auth/login", json={"username": "authtest", "password": "password"}
     )
     assert res.status_code == 200
     data = res.json()
@@ -30,13 +30,13 @@ async def test_refresh_flow(client):
     )
 
     login_res = await client.post(
-        "/users/login", json={"username": "refreshtest", "password": "password"}
+        "/auth/login", json={"username": "refreshtest", "password": "password"}
     )
     refresh_token = login_res.json()["refresh_token"]
     access_token_1 = login_res.json()["access_token"]
 
     refresh_res = await client.post(
-        "/users/refresh", json={"refresh_token": refresh_token}
+        "/auth/refresh", json={"refresh_token": refresh_token}
     )
     assert refresh_res.status_code == 200
     new_data = refresh_res.json()
@@ -47,7 +47,7 @@ async def test_refresh_flow(client):
 @pytest.mark.asyncio
 async def test_invalid_refresh_token(client):
     res = await client.post(
-        "/users/refresh", json={"refresh_token": "invalid.token.here"}
+        "/auth/refresh", json={"refresh_token": "invalid.token.here"}
     )
     assert res.status_code == 401
 
@@ -63,5 +63,5 @@ async def test_expired_refresh_token(client):
         algorithm=settings.ALGORITHM,
     )
 
-    res = await client.post("/users/refresh", json={"refresh_token": token})
+    res = await client.post("/auth/refresh", json={"refresh_token": token})
     assert res.status_code == 401

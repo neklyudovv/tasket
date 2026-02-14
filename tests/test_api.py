@@ -22,7 +22,7 @@ async def test_login_and_create_task(client):
     )
 
     login_res = await client.post(
-        "/users/login", json={"username": "taskuser", "password": "taskpass"}
+        "/auth/login", json={"username": "taskuser", "password": "taskpass"}
     )
     assert login_res.status_code == 200
     token = login_res.json()["access_token"]

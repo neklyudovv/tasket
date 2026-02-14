@@ -9,9 +9,9 @@ from db.session import get_db_session
 from schemas.user import User
 from services.task_service import TaskService
 from services.user_service import UserService
-from services.token_service import TokenService
+from services.auth_service import AuthService
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -28,8 +28,8 @@ def get_task_service(session: AsyncSession = Depends(get_db_session)) -> TaskSer
     return TaskService(session)
 
 
-def get_token_service(session: AsyncSession = Depends(get_db_session)) -> TokenService:
-    return TokenService(session)
+def get_auth_service(session: AsyncSession = Depends(get_db_session)) -> AuthService:
+    return AuthService(session)
 
 
 async def get_current_user(

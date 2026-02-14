@@ -10,6 +10,7 @@ from api.exception_handlers import register_exception_handlers
 from api.limiter import limiter
 from api.routers.tasks import router as tasks_router
 from api.routers.users import router as users_router
+from api.routers.auth import router as auth_router
 from core.config import settings
 
 
@@ -37,5 +38,6 @@ def create_app() -> FastAPI:
 
     app.include_router(tasks_router)
     app.include_router(users_router)
+    app.include_router(auth_router)
 
     return app
