@@ -86,11 +86,16 @@ Containers are isolated and communicate over a Docker network.
 
 ## API Endpoints
 
-### Authentication
-* `POST /users/register` - Register a new user
-* `POST /users/login` - Login and get access token
+### Authentication (`/auth`)
+* `POST /auth/login` - Login and get access/refresh tokens
+* `POST /auth/refresh` - Refresh access token
+* `POST /auth/logout` - Revoke refresh token and logout
 
-### Tasks
+### Users (`/users`)
+* `POST /users/register` - Register a new user
+* `GET /users/me` - Get current authenticated user profile
+
+### Tasks (`/tasks`)
 * `GET /tasks/` - Get list of tasks
 * `POST /tasks/` - Create a new task
 * `GET /tasks/{task_id}` - Get a specific task
