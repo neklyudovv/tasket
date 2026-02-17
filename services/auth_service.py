@@ -1,6 +1,6 @@
 import logging
 from datetime import UTC, datetime
-from sqlalchemy import select, update
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.security import (
@@ -11,6 +11,7 @@ from api.security import (
 )
 from core.exceptions import InvalidCredentialsError
 from db.models.refresh_token import RefreshToken as RefreshTokenORM
+from repositories import RefreshTokenRepository
 from schemas.user import User
 
 logger = logging.getLogger(__name__)
@@ -18,17 +19,17 @@ logger = logging.getLogger(__name__)
 
 class AuthService:
     def __init__(self, session: AsyncSession):
-        self.session = session
+        self.repository = RefreshTokenRepository(session)
 
     async def create_refresh_entry(self, user_id: int, jti: str, expires_at: datetime):
-        refresh_entry = RefreshTokenORM(
-            jti=jti,
-            user_id=user_id,
-            expires_at=expires_at,
-            created_at=datetime.now(UTC),
+        await self.repository.add(
+            RefreshTokenORM(
+                jti=jti,
+                user_id=user_id,
+                expires_at=expires_at,
+                created_at=datetime.now(UTC),
+            )
         )
-        self.session.add(refresh_entry)
-        await self.session.commit()
 
     async def create_tokens_for_user(self, user: User):
         username = user.username
@@ -49,34 +50,23 @@ class AuthService:
         if username is None or jti is None:
             raise InvalidCredentialsError
 
-        result = await self.session.execute(select(RefreshTokenORM).where(RefreshTokenORM.jti == jti))
-        db_token = result.scalars().first()
+        db_token = await self.repository.get_by_jti(jti)
         if not db_token or db_token.revoked:
             if db_token:
-                await self.session.execute(
-                    update(RefreshTokenORM)
-                    .where(RefreshTokenORM.user_id == db_token.user_id, RefreshTokenORM.revoked == False)
-                    .values(revoked=True)
-                )
-                await self.session.commit()
+                # Reuse of a revoked token: revoke the whole family.
+                await self.repository.revoke_all_for_user(db_token.user_id)
             raise InvalidCredentialsError
 
         new_access = create_access_token({"sub": username})
         new_refresh, new_jti, new_expires_at = create_refresh_token({"sub": username})
 
-        await self.session.execute(
-            update(RefreshTokenORM)
-            .where(RefreshTokenORM.jti == jti)
-            .values(revoked=True, replaced_by=new_jti)
-        )
         new_entry = RefreshTokenORM(
             jti=new_jti,
             user_id=db_token.user_id,
             expires_at=new_expires_at,
             created_at=datetime.now(UTC),
         )
-        self.session.add(new_entry)
-        await self.session.commit()
+        await self.repository.rotate(jti, new_entry)
 
         return new_access, new_refresh, "bearer"
 
@@ -89,7 +79,4 @@ class AuthService:
             return
 
         if jti:
-            await self.session.execute(
-                update(RefreshTokenORM).where(RefreshTokenORM.jti == jti).values(revoked=True)
-            )
-            await self.session.commit()
+            await self.repository.revoke(jti)
