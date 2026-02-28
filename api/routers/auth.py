@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, Request
 
-from api.deps import get_user_service, get_auth_service
+from api.deps import get_auth_service
 from api.limiter import limiter
 from core.exceptions import InvalidCredentialsError
 from schemas.token import Token, TokenRefreshRequest
 from schemas.user import UserCreate
-from services.user_service import UserService
 from services.auth_service import AuthService
 
 
@@ -17,11 +16,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def login(
     request: Request,
     user: UserCreate,
-    user_service: UserService = Depends(get_user_service),
     auth_service: AuthService = Depends(get_auth_service),
 ):
-    authenticated_user = await user_service.login_user(user.username, user.password)
-    access, refresh, token_type = await auth_service.create_tokens_for_user(authenticated_user)
+    access, refresh, token_type = await auth_service.authenticate(
+        user.username, user.password
+    )
     return Token(
         access_token=access,
         refresh_token=refresh,

@@ -1,9 +1,8 @@
 import logging
 
-import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.exceptions import InvalidCredentialsError
+from api.security import hash_password
 from db.models.user import User as UserORM
 from repositories import UserRepository
 from schemas.user import User
@@ -16,12 +15,8 @@ class UserService:
         self.repository = UserRepository(session)
 
     async def new_user(self, username: str, password: str) -> User:
-        hashed_password = bcrypt.hashpw(
-            password.encode("utf-8"), bcrypt.gensalt()
-        ).decode("utf-8")
-
         user = await self.repository.add(
-            UserORM(username=username, password_hash=hashed_password)
+            UserORM(username=username, password_hash=hash_password(password))
         )
 
         logger.info(f"User created: {username=} ")
@@ -32,14 +27,3 @@ class UserService:
         if user:
             return User.model_validate(user)
         return None
-
-    async def login_user(self, username: str, password: str) -> User | None:
-        user = await self.repository.get_by_username(username)
-
-        if not user or not bcrypt.checkpw(
-            password.encode("utf-8"), user.password_hash.encode("utf-8")
-        ):
-            logger.warning(f"Invalid username or password: {username=}")
-            raise InvalidCredentialsError
-        logger.info(f"Logged in user: {username=}")
-        return User.model_validate(user)

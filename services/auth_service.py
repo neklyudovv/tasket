@@ -7,22 +7,36 @@ from api.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    verify_password,
     verify_token_payload,
 )
 from core.exceptions import InvalidCredentialsError
 from db.models.refresh_token import RefreshToken as RefreshTokenORM
-from repositories import RefreshTokenRepository
-from schemas.user import User
+from repositories import RefreshTokenRepository, UserRepository
 
 logger = logging.getLogger(__name__)
 
 
 class AuthService:
     def __init__(self, session: AsyncSession):
-        self.repository = RefreshTokenRepository(session)
+        self.users = UserRepository(session)
+        self.tokens = RefreshTokenRepository(session)
 
-    async def create_refresh_entry(self, user_id: int, jti: str, expires_at: datetime):
-        await self.repository.add(
+    async def authenticate(self, username: str, password: str):
+        """Verify credentials and issue a fresh access/refresh token pair."""
+        user = await self.users.get_by_username(username)
+
+        if not user or not verify_password(password, user.password_hash):
+            logger.warning(f"Invalid username or password: {username=}")
+            raise InvalidCredentialsError
+
+        logger.info(f"Logged in user: {username=}")
+        return await self._issue_tokens(user.id, user.username)
+
+    async def _issue_tokens(self, user_id: int, username: str):
+        access_token = create_access_token({"sub": username})
+        refresh_token, jti, expires_at = create_refresh_token({"sub": username})
+        await self.tokens.add(
             RefreshTokenORM(
                 jti=jti,
                 user_id=user_id,
@@ -30,12 +44,6 @@ class AuthService:
                 created_at=datetime.now(UTC),
             )
         )
-
-    async def create_tokens_for_user(self, user: User):
-        username = user.username
-        access_token = create_access_token({"sub": username})
-        refresh_token, jti, expires_at = create_refresh_token({"sub": username})
-        await self.create_refresh_entry(user.id, jti, expires_at)
         return access_token, refresh_token, "bearer"
 
     async def refresh(self, refresh_token_str: str):
@@ -50,11 +58,11 @@ class AuthService:
         if username is None or jti is None:
             raise InvalidCredentialsError
 
-        db_token = await self.repository.get_by_jti(jti)
+        db_token = await self.tokens.get_by_jti(jti)
         if not db_token or db_token.revoked:
             if db_token:
                 # Reuse of a revoked token: revoke the whole family.
-                await self.repository.revoke_all_for_user(db_token.user_id)
+                await self.tokens.revoke_all_for_user(db_token.user_id)
             raise InvalidCredentialsError
 
         new_access = create_access_token({"sub": username})
@@ -66,7 +74,7 @@ class AuthService:
             expires_at=new_expires_at,
             created_at=datetime.now(UTC),
         )
-        await self.repository.rotate(jti, new_entry)
+        await self.tokens.rotate(jti, new_entry)
 
         return new_access, new_refresh, "bearer"
 
@@ -79,4 +87,4 @@ class AuthService:
             return
 
         if jti:
-            await self.repository.revoke(jti)
+            await self.tokens.revoke(jti)

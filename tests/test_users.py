@@ -1,6 +1,7 @@
 import pytest
 
 from core.exceptions import InvalidCredentialsError, UserAlreadyExistsError
+from services.auth_service import AuthService
 from services.user_service import UserService
 
 
@@ -18,15 +19,16 @@ async def test_create_user_duplicate(session):
         await service.new_user("dupe", "456")
 
 
-async def test_login_user_success(session):
-    service = UserService(session)
-    await service.new_user("loginme", "1234")
-    user = await service.login_user("loginme", "1234")
-    assert user.username == "loginme"
+async def test_authenticate_success(session):
+    await UserService(session).new_user("loginme", "1234")
+    access, refresh, token_type = await AuthService(session).authenticate(
+        "loginme", "1234"
+    )
+    assert access and refresh
+    assert token_type == "bearer"
 
 
-async def test_login_user_wrong_password(session):
-    service = UserService(session)
-    await service.new_user("wrongpass", "pass")
+async def test_authenticate_wrong_password(session):
+    await UserService(session).new_user("wrongpass", "pass")
     with pytest.raises(InvalidCredentialsError):
-        await service.login_user("wrongpass", "wrong")
+        await AuthService(session).authenticate("wrongpass", "wrong")
