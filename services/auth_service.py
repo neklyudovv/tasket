@@ -1,8 +1,6 @@
 import logging
 from datetime import UTC, datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from api.security import (
     create_access_token,
     create_refresh_token,
@@ -18,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 class AuthService:
-    def __init__(self, session: AsyncSession):
-        self.users = UserRepository(session)
-        self.tokens = RefreshTokenRepository(session)
+    def __init__(self, users: UserRepository, tokens: RefreshTokenRepository):
+        self.users = users
+        self.tokens = tokens
 
     async def authenticate(self, username: str, password: str):
         """Verify credentials and issue a fresh access/refresh token pair."""

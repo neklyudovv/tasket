@@ -1,7 +1,5 @@
 import logging
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from api.security import hash_password
 from db.models.user import User as UserORM
 from repositories import UserRepository
@@ -11,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 class UserService:
-    def __init__(self, session: AsyncSession):
-        self.repository = UserRepository(session)
+    def __init__(self, repository: UserRepository):
+        self.repository = repository
 
     async def new_user(self, username: str, password: str) -> User:
         user = await self.repository.add(

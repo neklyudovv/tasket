@@ -2,12 +2,13 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from core.exceptions import TaskNotFoundError
+from repositories import TaskRepository
 from schemas.task import TaskUpdate
 from services.task_service import TaskService
 
 
 async def test_create_and_get_task(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     user_id = 1
     due = datetime.now(UTC) + timedelta(days=1)
 
@@ -22,7 +23,7 @@ async def test_create_and_get_task(session):
 
 
 async def test_done_task_success(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     user_id = 2
     due = datetime.now(UTC) + timedelta(days=2)
     task = await service.create_task("Another Task", user_id, due)
@@ -32,7 +33,7 @@ async def test_done_task_success(session):
 
 
 async def test_done_task_permission_denied(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     user_id = 3
     wrong_user_id = 999
     due = datetime.now(UTC) + timedelta(days=2)
@@ -43,13 +44,13 @@ async def test_done_task_permission_denied(session):
 
 
 async def test_done_task_not_found(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     with pytest.raises(TaskNotFoundError):
         await service.update_task("non-existent-id", 1, TaskUpdate(is_done=True))
 
 
 async def test_delete_task_success(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     user_id = 4
     due = datetime.now(UTC) + timedelta(days=3)
     task = await service.create_task("Delete Me", user_id, due)
@@ -60,7 +61,7 @@ async def test_delete_task_success(session):
 
 
 async def test_delete_task_permission_denied(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     user_id = 5
     wrong_user_id = 888
     due = datetime.now(UTC) + timedelta(days=3)
@@ -71,13 +72,13 @@ async def test_delete_task_permission_denied(session):
 
 
 async def test_delete_task_not_found(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     with pytest.raises(TaskNotFoundError):
         await service.delete_task("non-existent-id", 1)
 
 
 async def test_pagination(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     user_id = 10
     due = datetime.now(UTC) + timedelta(days=1)
 
@@ -99,7 +100,7 @@ async def test_pagination(session):
 
 
 async def test_create_task_with_description(session):
-    service = TaskService(session)
+    service = TaskService(TaskRepository(session))
     user_id = 99
 
     task = await service.create_task(

@@ -6,6 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.security import decode_token, verify_token_payload
 from db.session import get_db_session
+from repositories import (
+    RefreshTokenRepository,
+    TaskRepository,
+    UserRepository,
+)
 from schemas.user import User
 from services.task_service import TaskService
 from services.user_service import UserService
@@ -20,16 +25,41 @@ credentials_exception = HTTPException(
 )
 
 
-def get_user_service(session: AsyncSession = Depends(get_db_session)) -> UserService:
-    return UserService(session)
+def get_user_repository(
+    session: AsyncSession = Depends(get_db_session),
+) -> UserRepository:
+    return UserRepository(session)
 
 
-def get_task_service(session: AsyncSession = Depends(get_db_session)) -> TaskService:
-    return TaskService(session)
+def get_task_repository(
+    session: AsyncSession = Depends(get_db_session),
+) -> TaskRepository:
+    return TaskRepository(session)
 
 
-def get_auth_service(session: AsyncSession = Depends(get_db_session)) -> AuthService:
-    return AuthService(session)
+def get_refresh_token_repository(
+    session: AsyncSession = Depends(get_db_session),
+) -> RefreshTokenRepository:
+    return RefreshTokenRepository(session)
+
+
+def get_user_service(
+    repository: UserRepository = Depends(get_user_repository),
+) -> UserService:
+    return UserService(repository)
+
+
+def get_task_service(
+    repository: TaskRepository = Depends(get_task_repository),
+) -> TaskService:
+    return TaskService(repository)
+
+
+def get_auth_service(
+    users: UserRepository = Depends(get_user_repository),
+    tokens: RefreshTokenRepository = Depends(get_refresh_token_repository),
+) -> AuthService:
+    return AuthService(users, tokens)
 
 
 async def get_current_user(

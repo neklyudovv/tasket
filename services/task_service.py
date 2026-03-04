@@ -2,8 +2,6 @@ import logging
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from core.exceptions import TaskNotFoundError
 from db.models import Task as TaskORM
 from repositories import TaskRepository
@@ -13,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class TaskService:
-    def __init__(self, session: AsyncSession):
-        self.repository = TaskRepository(session)
+    def __init__(self, repository: TaskRepository):
+        self.repository = repository
 
     async def get_user_tasks(
         self, user_id: int, limit: int = 50, offset: int = 0
